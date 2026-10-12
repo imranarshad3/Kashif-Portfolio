@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kashif Saeed — Portfolio
 
-## Getting Started
+Dark-luxury 3D portfolio built with Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4,
+Three.js / React Three Fiber / Drei and GSAP ScrollTrigger.
 
-First, run the development server:
+## Run
+
+Requires Node.js ≥ 20.9.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run lint
+npx tsc --noEmit
+npm run build && npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Editing content
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+All public content lives in typed files under `content/`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| File | What it controls |
+|---|---|
+| `content/profile.ts` | Name, bio, availability, rate, reviews, certifications, contact channels, photo, resume |
+| `content/projects.ts` | Project cards, filters and `/projects/[slug]` case studies |
+| `content/experience.ts` | Experience timeline and "Companies I've Worked With" |
+| `content/skills.ts` | Skill groups, tiles and skill → project mappings |
+| `content/unpublished.ts` | **Private.** Unconfirmed companies/projects. Not imported anywhere, never shipped |
 
-## Learn More
+Contact channels (`email`, `linkedin`, `github`, `twitter`), `photo` and `resumeUrl` are `null` until supplied;
+each one appears on the site automatically once set.
 
-To learn more about Next.js, take a look at the following resources:
+Project screenshots are in `public/projects/` (public homepages captured 11 Oct 2026 at 1440×900).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `components/three/` — procedural office scene (hero) and crystal (skills), lazy-loaded, paused offscreen
+- `components/sections/` — page sections; GSAP animations are scoped per section and reverted on unmount
+- `lib/hooks.ts` — media-query, WebGL detection, viewport and GSAP-context hooks
+- `components/SmoothScroll.tsx` + `lib/scroll.ts` — Lenis inertial scrolling synced to GSAP's ticker; use
+  `scrollToTarget()` for any programmatic scroll so it eases the same way as the nav
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`prefers-reduced-motion` disables scroll-scrubbed motion, pinning and camera movement. Without WebGL the 3D
+scenes fall back to static CSS visuals.
