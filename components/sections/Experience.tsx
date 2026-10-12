@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { ArrowUpRight, Briefcase, GraduationCap, Handshake, Quote } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { experience, kindLabels, type Experience as Item } from "@/content/experience";
 import { profile } from "@/content/profile";
 import { gsap } from "@/lib/gsap";
 import { useGsap, useIsDesktop } from "@/lib/hooks";
 import { SectionHeading } from "../ui/SectionHeading";
+import { AchievementPanel } from "../ui/AchievementPanel";
 import { GoldCar } from "../ui/GoldCar";
+import { RoadsideStop } from "../ui/RoadsideStop";
 import { Stars } from "../ui/Stars";
 import { revealGroups } from "../ui/reveal";
 
@@ -76,6 +78,9 @@ function TimelineCard({ item }: { item: Item }) {
 
 type Pt = { x: number; y: number };
 
+/** How far ahead of a milestone (px along the road's height) its roadside building starts to rise. */
+const APPROACH = 260;
+
 /** Curve through each milestone node with vertical tangents, in pixel units (viewBox = width × height). */
 function buildPath(points: Pt[], width: number, height: number, desktop: boolean) {
   if (!desktop || points.length === 0) return `M ${width * 0.06} 0 L ${width * 0.06} ${height}`;
@@ -99,6 +104,9 @@ export function Experience() {
   const isDesktop = useIsDesktop();
   const [layout, setLayout] = useState<{ width: number; height: number; points: Pt[] }>({ width: 1000, height: 1000, points: [] });
   const height = layout.height;
+  const [openId, setOpenId] = useState<string | null>(null);
+  const openItem = experience.find((e) => e.id === openId) ?? null;
+  const onPanelClosed = useCallback(() => setOpenId(null), []);
 
   useEffect(() => {
     const el = list.current;
@@ -135,6 +143,22 @@ export function Experience() {
         const items = gsap.utils.toArray<HTMLElement>("[data-tl-item]");
         const nodeYs = items.map((li) => li.offsetTop + li.offsetHeight / 2);
         const lit = items.map(() => false);
+        // Roadside buildings rise out of the ground as the car approaches and sink again in reverse.
+        const risen = items.map(() => false);
+        const rises = items.map((item) => {
+          const stops = item.querySelectorAll<HTMLElement>("[data-stop]");
+          const bodies = item.querySelectorAll<HTMLElement>("[data-stop-rise]");
+          gsap.set(stops, { pointerEvents: "none" });
+          return gsap
+            .timeline({ paused: true })
+            .fromTo(
+              bodies,
+              { rotationX: 76, y: 28, scale: 0.8, opacity: 0, transformPerspective: 700 },
+              { rotationX: 0, y: 0, scale: 1, opacity: 1, duration: 1, ease: "back.out(1.3)" },
+            )
+            .fromTo(item.querySelectorAll(".stop-cta"), { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.5 }, 0.55)
+            .set(stops, { pointerEvents: "auto" }, 0.3);
+        });
         const light = (i: number, on: boolean) => {
           lit[i] = on;
           const item = items[i];
@@ -160,6 +184,12 @@ export function Experience() {
           for (let i = 0; i < nodeYs.length; i++) {
             const reached = progress > 0.002 && pt.y >= nodeYs[i] - 2;
             if (reached !== lit[i]) light(i, reached);
+            const near = progress > 0.002 && pt.y >= nodeYs[i] - APPROACH;
+            if (near !== risen[i]) {
+              risen[i] = near;
+              if (near) rises[i].timeScale(1).play();
+              else rises[i].timeScale(1.4).reverse();
+            }
           }
         };
         // ScrollTrigger can fire onUpdate synchronously while the tween is being created,
@@ -278,6 +308,16 @@ export function Experience() {
                       {item.start.slice(0, 4)}
                     </span>
                   </span>
+                  {/* roadside building on the open side of the road (desktop) */}
+                  <div
+                    className={`absolute top-1/2 z-10 hidden w-[clamp(150px,17%,200px)] -translate-y-1/2 lg:block ${left ? "left-[5%]" : "right-[5%]"}`}
+                  >
+                    <RoadsideStop item={item} onOpen={() => setOpenId(item.id)} />
+                  </div>
+                  {/* phones/tablets: a compact building above the card, beside the road */}
+                  <div className="mb-3 lg:hidden">
+                    <RoadsideStop item={item} compact onOpen={() => setOpenId(item.id)} />
+                  </div>
                   <div data-tl-card className={left ? "lg:col-start-2 lg:pl-16" : "lg:col-start-1 lg:row-start-1 lg:pr-16"}>
                     <TimelineCard item={item} />
                   </div>
@@ -287,6 +327,7 @@ export function Experience() {
           </ol>
         </div>
       </div>
+      <AchievementPanel item={openItem} onClosed={onPanelClosed} />
     </section>
   );
 }

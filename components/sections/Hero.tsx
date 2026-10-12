@@ -13,6 +13,7 @@ import { countUp, goldSweep } from "../ui/reveal";
 import { introWillPlay, onIntroDone } from "@/lib/intro";
 import { HERO_PENDING } from "@/lib/heroPrepaint";
 import { HeroPortrait, HeroPortraitBadge } from "../ui/HeroPortrait";
+import { HeroReviews } from "../ui/HeroReviews";
 
 const OfficeScene = dynamic(() => import("../three/OfficeScene"), { ssr: false });
 
@@ -48,6 +49,10 @@ export function Hero() {
   // Behind the landing curtain the scene only warms up; it runs once the curtain opens.
   const [curtainOpen, setCurtainOpen] = useState(false);
   useEffect(() => onIntroDone(() => setCurtainOpen(true)), []);
+  // The review loop idles once the hero copy has scrolled away (the hero stays pinned on desktop).
+  const [scrolledAway, setScrolledAway] = useState(false);
+  const awayRef = useRef(false);
+  const tallEnough = useMediaQuery("(min-height: 701px)");
 
   useEffect(() => {
     if (reduced) return;
@@ -69,7 +74,7 @@ export function Hero() {
       (ctx) => {
         const { full, desktop } = ctx.conditions as { full: boolean; desktop: boolean };
         if (!full) {
-          gsap.set("[data-hero-line], [data-hero-fade]", { clearProps: "all" });
+          gsap.set("[data-hero-line], [data-hero-fade], [data-hero-reviews-in]", { clearProps: "all" });
           return;
         }
         // With the landing intro playing, the hero's entrance waits for the curtain to open.
@@ -85,7 +90,16 @@ export function Hero() {
           intro
             .fromTo("[data-portrait]", { clipPath: "inset(100% 0% 0% 0% round 999px 999px 22px 22px)", y: 40 }, { clipPath: "inset(0% 0% 0% 0% round 0px)", y: 0, duration: 1.5, ease: "expo.out" }, 0.55)
             .fromTo("[data-portrait-photo] img", { scale: 1.18, filter: "brightness(0.6)" }, { scale: 1, filter: "brightness(1)", duration: 2, ease: "power3.out" }, 0.6)
-            .fromTo("[data-portrait-rim]", { drawSVG: "50% 50%" }, { drawSVG: "0% 100%", duration: 1.6, ease: "power2.inOut" }, 1.1);
+            .fromTo("[data-portrait-rim]", { drawSVG: "50% 50%" }, { drawSVG: "0% 100%", duration: 1.6, ease: "power2.inOut" }, 1.1)
+            .fromTo("[data-portrait] .portrait-sheen", { "--sheen": "-60%" }, { "--sheen": "160%", duration: 1.5, ease: "power2.inOut" }, 1.5);
+        }
+        if (root.current!.querySelector("[data-hero-reviews-in]")) {
+          intro.fromTo(
+            "[data-hero-reviews-in]",
+            { opacity: 0, y: 50, rotateX: 18, filter: "blur(8px)" },
+            { opacity: 1, y: 0, rotateX: 0, filter: "blur(0px)", duration: 1.4, ease: "expo.out", clearProps: "filter" },
+            1.25,
+          );
         }
         gsap.utils.toArray<HTMLElement>("[data-countup]", root.current).forEach((el, i) => {
           const c = countUp(el);
@@ -107,6 +121,11 @@ export function Hero() {
             scrub: 0.6,
             onUpdate: (self) => {
               control.current.progress = self.progress;
+              const away = self.progress > (desktop ? 0.12 : 0.4);
+              if (away !== awayRef.current) {
+                awayRef.current = away;
+                setScrolledAway(away);
+              }
             },
           },
         });
@@ -140,6 +159,8 @@ export function Hero() {
             // the portrait column recedes into the room as the camera pushes in
             .to("[data-portrait-column]", { yPercent: -10, z: -180, rotateY: 16, opacity: 0, duration: 0.28 }, 0.02)
             .to("[data-hero-scrollcue]", { opacity: 0, duration: 0.1 }, 0)
+            // the review card lifts away with the copy, ahead of the camera push-in
+            .to("[data-hero-reviews]", { yPercent: -16, z: -120, opacity: 0, duration: 0.2 }, 0)
             // as the screen fills the frame its light becomes a warm veil (code stays faintly visible)
             .fromTo("[data-hero-veil]", { opacity: 0 }, { opacity: 0.93, duration: 0.1, ease: "power1.in" }, 0.64)
             .set({}, {}, 1); // keep the timeline exactly 1 long so positions match scroll progress
@@ -282,6 +303,19 @@ export function Hero() {
 
         {/* Floating capability panel */}
         {profile.photo && <HeroPortrait src={profile.photo} />}
+
+        {/* Floating Upwork reviews: their own column between the copy and the portrait (desktop only) */}
+        {/* (always mounted so the entrance/exit timelines find it; the loop only runs where it shows) */}
+        {profile.reviews.length > 0 && (
+          <div
+            data-hero-reviews
+            className="absolute bottom-10 right-10 hidden w-[300px] [perspective:1200px] lg:block xl:right-[372px] xl:w-[min(300px,calc(100vw-1000px))] [@media(max-height:700px)]:hidden"
+          >
+            <div data-hero-reviews-in>
+              <HeroReviews active={isDesktop && tallEnough && inView && curtainOpen && !scrolledAway} />
+            </div>
+          </div>
+        )}
 
         {/* wrapper fades on scroll; the link inside fades in with the intro (separate opacity owners) */}
         <div data-hero-scrollcue className="absolute bottom-8 left-4 sm:left-6 lg:left-10 [@media(max-height:820px)]:hidden">

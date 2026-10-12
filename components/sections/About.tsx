@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { ArrowRight, Award, Code2, Cloud, CreditCard, GraduationCap, MapPin, Sparkles, Clock, Layers, ShieldCheck, Waypoints } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { profile } from "@/content/profile";
 import { gsap } from "@/lib/gsap";
 import { useGsap, useReducedMotion } from "@/lib/hooks";
+import { PortraitPhoto } from "../ui/PortraitPhoto";
 import { SectionHeading } from "../ui/SectionHeading";
 import { revealGroups } from "../ui/reveal";
 
@@ -25,8 +25,19 @@ const principles = [
 function Emblem() {
   if (profile.photo) {
     return (
-      <div className="relative h-full w-full overflow-hidden rounded-[28px]">
-        <Image src={profile.photo} alt={`Portrait of ${profile.name}`} fill sizes="(min-width:1024px) 320px, 60vw" className="object-cover" />
+      <div className="relative h-full w-full overflow-hidden rounded-t-[999px] rounded-b-[24px] bg-black">
+        <div data-emblem-photo className="absolute -inset-[2%]">
+          <PortraitPhoto src={profile.photo} sizes="(min-width: 1024px) 300px, 55vw" position="50% 30%" />
+        </div>
+        {/* warm key light, a deeper base so the plaque reads, and a glass reflection */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_82%_6%,rgb(var(--a-200)/0.3),transparent_70%)] mix-blend-soft-light" />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[34%] bg-gradient-to-t from-[#0b0a09] via-[#0b0a09]/70 to-transparent" />
+        <div aria-hidden data-emblem-sheen className="portrait-sheen pointer-events-none absolute inset-0" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgb(var(--a-100)/0.22),inset_0_0_40px_rgb(var(--a-glow)/0.12)]" />
+        <p className="absolute inset-x-0 bottom-4 text-center">
+          <span className="block font-display text-[13px] tracking-[0.28em] text-text">{profile.name.toUpperCase()}</span>
+          <span className="mt-1 block text-[11px] tracking-[0.14em] text-gold-bright">{profile.title}</span>
+        </p>
       </div>
     );
   }
@@ -74,6 +85,12 @@ export function About() {
         ease: "power3.out",
         scrollTrigger: { trigger: stage.current, start: "top 80%", toggleActions: "play none none reverse" },
       });
+      if (root.current!.querySelector("[data-emblem-photo]")) {
+        gsap
+          .timeline({ scrollTrigger: { trigger: stage.current, start: "top 75%", toggleActions: "play none none reverse" } })
+          .fromTo("[data-emblem-photo]", { scale: 1.14, filter: "brightness(0.65)" }, { scale: 1, filter: "brightness(1)", duration: 1.8, ease: "power3.out" }, 0.2)
+          .fromTo("[data-emblem-sheen]", { "--sheen": "-60%" }, { "--sheen": "160%", duration: 1.6, ease: "power2.inOut" }, 0.7);
+      }
       // gentle scroll-linked rotation of the whole composition
       gsap.fromTo(
         "[data-stage-inner]",
@@ -160,7 +177,7 @@ export function About() {
               <div className="absolute inset-x-0 top-0 h-[62%] rounded-[50%] border border-[rgb(var(--a-200))]/70 bg-[radial-gradient(ellipse_at_50%_35%,#2c2824,#121110_70%)] shadow-[0_0_30px_rgb(var(--a-glow)/0.25),inset_0_2px_10px_rgb(var(--a-100)/0.08)]" />
             </div>
             <div data-emblem className="absolute inset-x-[25%] bottom-[14%] top-[4%] [transform:translateZ(0)]">
-              <div className="glass h-full w-full rounded-[30px] p-2 shadow-[0_0_60px_-10px_rgb(var(--a-glow)/0.25)]">
+              <div className="glass glass-blur h-full w-full rounded-t-[999px] rounded-b-[30px] p-2 shadow-[0_0_60px_-10px_rgb(var(--a-glow)/0.3),0_40px_80px_-30px_rgba(0,0,0,0.95)]">
                 <Emblem />
               </div>
             </div>

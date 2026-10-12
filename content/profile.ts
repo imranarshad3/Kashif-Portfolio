@@ -24,10 +24,13 @@ export const profile = {
   rate: "$25/hr",
   upworkUrl: "https://www.upwork.com/freelancers/~01044da7d47724c875",
 
-  /** Not supplied yet. Set a path under /public (e.g. "/kashif.jpg") to show a portrait in About. */
-  photo: "/kashif-portrait.jpg" as string | null,
-  /** Same photo, resized to 168×210 for the small hero badge on phones/tablets. */
-  photoBadge: "/kashif-portrait-badge.jpg" as string | null,
+  /**
+   * Studio portrait on a plain white backdrop (1329 × 1183). Rendered through `PortraitPhoto`, which
+   * multiplies the backdrop into a warm champagne light without touching the subject.
+   */
+  photo: "/projects/Images/kashif-portrait.jpg" as string | null,
+  /** Copy used for the small hero badge on phones/tablets (zoomed to the face). */
+  photoBadge: "/projects/Images/kashif-portrait-badge.jpg" as string | null,
   /** Not supplied yet. Set a path under /public (e.g. "/kashif-saeed-resume.pdf") to show the Resume button. */
   resumeUrl: null as string | null,
 

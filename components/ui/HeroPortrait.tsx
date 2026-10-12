@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { BadgeCheck, Bot, CreditCard, Database, Workflow } from "lucide-react";
 import { profile } from "@/content/profile";
 import { gsap } from "@/lib/gsap";
+import { PortraitPhoto } from "./PortraitPhoto";
 
 const capabilities = [
   { icon: CreditCard, label: "Payments & billing" },
@@ -63,17 +63,11 @@ export function HeroPortrait({ src }: { src: string }) {
           <div className="glass glass-blur relative rounded-t-[999px] rounded-b-[22px] p-2 shadow-[inset_0_1px_0_rgb(var(--a-100)/0.25),0_40px_80px_-30px_rgba(0,0,0,0.95)]">
             <div className="relative aspect-[4/5] overflow-hidden rounded-t-[999px] rounded-b-[16px] bg-black">
               <div data-portrait-photo className="absolute -inset-[3%]">
-                <Image
-                  src={src}
-                  alt={`Portrait of ${profile.name}`}
-                  fill
-                  loading="eager"
-                  fetchPriority="high"
-                  sizes="(min-width: 1280px) 256px, 0px"
-                  quality={90}
-                  className="object-cover object-[50%_20%]"
-                />
+                <PortraitPhoto src={src} sizes="(min-width: 1280px) 270px, 0px" priority />
               </div>
+              {/* soft golden key light from the upper left, and a glass reflection across the arch */}
+              <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_18%_8%,rgb(var(--a-200)/0.28),transparent_70%)] mix-blend-soft-light" />
+              <div aria-hidden className="portrait-sheen pointer-events-none absolute inset-0" />
               {/* frame lighting only — warm glint along the inner edge, deeper shade at the base */}
               <div aria-hidden className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_0_0_1px_rgb(var(--a-100)/0.22),inset_0_-60px_60px_-30px_rgba(6,6,8,0.75)]" />
             </div>
@@ -134,13 +128,17 @@ export function HeroPortrait({ src }: { src: string }) {
 
 /**
  * Compact arched portrait for tablet/phone, shown beside the hero eyebrow.
- * Uses its own small copy of the photo (resized only) and loads lazily, so desktops — where it's
+ * Uses its own copy of the photo and loads lazily, so desktops — where it's
  * hidden — never download or preload it. The desktop frame loads eagerly as the page's largest paint.
  */
 export function HeroPortraitBadge({ src }: { src: string }) {
   return (
     <span className="relative inline-block h-[70px] w-14 shrink-0 overflow-hidden rounded-t-[999px] rounded-b-xl border border-gold/40 bg-black shadow-[0_0_0_3px_rgb(var(--a-100)/0.06),0_10px_30px_-10px_rgb(var(--a-glow)/0.55)] xl:hidden">
-      <Image src={src} alt={`Portrait of ${profile.name}`} fill sizes="56px" quality={90} className="object-cover object-[50%_20%]" />
+      {/* the photo is a wide half-length shot: enlarge it (proportions intact) so the badge frames the face */}
+      <span className="absolute -left-[53%] top-0 h-[220%] w-[220%]">
+        <PortraitPhoto src={src} sizes="128px" />
+      </span>
+      <span aria-hidden className="portrait-sheen pointer-events-none absolute inset-0" />
     </span>
   );
 }

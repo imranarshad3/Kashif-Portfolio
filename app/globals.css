@@ -99,7 +99,7 @@ body {
 }
 
 /* Hero entrance elements stay hidden from first paint until GSAP takes them over (lib/heroPrepaint) */
-html.hero-pending :is([data-hero-line], [data-hero-fade], [data-hero-panel], [data-portrait]) {
+html.hero-pending :is([data-hero-line], [data-hero-fade], [data-hero-panel], [data-portrait], [data-hero-reviews-in]) {
   opacity: 0;
 }
 
@@ -370,6 +370,198 @@ section[id] {
     opacity: 1;
     translate: 0 0;
   }
+}
+
+/* ---------- portrait glass ---------- */
+/* A band of light that GSAP sweeps across glass (--sheen: -60% → 160%) */
+.portrait-sheen {
+  --sheen: -60%;
+  background: linear-gradient(
+    115deg,
+    transparent calc(var(--sheen) - 22%),
+    rgba(255, 250, 236, 0.2) var(--sheen),
+    transparent calc(var(--sheen) + 22%)
+  );
+  mix-blend-mode: screen;
+}
+
+/* ---------- hero Upwork reviews ---------- */
+.review-glass {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgb(var(--a-100)/0.12), transparent 55%),
+    linear-gradient(160deg, rgba(255, 246, 228, 0.1), rgba(255, 246, 228, 0.03) 45%, rgba(255, 246, 228, 0.06)),
+    rgba(14, 12, 10, 0.55);
+  border: 1px solid rgb(var(--a-200)/0.32);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--a-100)/0.35),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 30px rgb(var(--a-100)/0.04),
+    0 30px 60px -24px rgba(0, 0, 0, 0.95),
+    0 0 50px -20px rgb(var(--a-glow)/0.35);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+}
+/* the dissolve: a feathered hole opens from the point of impact (--hole animated by GSAP) */
+.review-glass.is-dissolving {
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole, 0px), #000 calc(var(--hole, 0px) + 70px));
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole, 0px), #000 calc(var(--hole, 0px) + 70px));
+}
+.review-glint {
+  background:
+    linear-gradient(180deg, rgba(255, 250, 238, 0.09), transparent 28%),
+    radial-gradient(60% 40% at var(--glint-x, 30%) 0%, rgb(var(--a-100)/0.16), transparent 70%);
+  mix-blend-mode: screen;
+}
+.review-ctl {
+  display: grid;
+  place-items: center;
+  height: 1.9rem;
+  width: 1.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 9, 8, 0.55);
+  color: var(--muted);
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+.review-ctl:hover {
+  color: var(--gold-bright);
+  border-color: rgb(var(--a-200)/0.5);
+}
+
+/* ---------- Experience roadside stops ---------- */
+.stop-building {
+  cursor: pointer;
+  border-radius: 14px;
+  -webkit-tap-highlight-color: transparent;
+}
+.stop-svg {
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.6s ease;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.7));
+}
+@media (hover: hover) {
+  .stop-building:hover .stop-svg {
+    transform: translateY(-5px) scale(1.03);
+    filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 18px rgb(var(--a-glow)/0.25));
+  }
+}
+/* keyboard users can reach a stop before the car does: show it fully while focused */
+.stop-building:focus-visible [data-stop-rise] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+.stop-cta {
+  color: var(--faint);
+  transition: color 0.4s ease;
+}
+.stop-building:hover .stop-cta,
+.stop-building:focus-visible .stop-cta {
+  color: var(--gold-bright);
+}
+.stop-sign {
+  fill: rgb(var(--a-300));
+  opacity: 0.55;
+  transition:
+    opacity 0.6s ease,
+    fill 0.6s ease;
+}
+.stop-sign-sub {
+  fill: rgb(var(--a-200)/0.7);
+}
+.stop-window {
+  fill-opacity: 0.1;
+  transition:
+    fill-opacity 0.7s ease,
+    filter 0.7s ease;
+}
+.stop-pool {
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.stop-lamp {
+  fill: #3a3023;
+  transition:
+    fill 0.6s ease,
+    filter 0.6s ease;
+}
+.stop-marker {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  opacity: 0.45;
+  transition: opacity 0.6s ease;
+}
+.stop-marker-core {
+  fill: #3a3023;
+  transition: fill 0.6s ease;
+}
+/* the car has arrived: lights on, sign lit, marker active */
+:is(.is-lit, .stop-building:hover, .stop-building:focus-visible) .stop-window {
+  fill-opacity: 0.95;
+  filter: drop-shadow(0 0 4px rgb(var(--a-glow)/0.7));
+}
+:is(.is-lit, .stop-building:hover, .stop-building:focus-visible) .stop-sign {
+  fill: rgb(var(--a-100));
+  opacity: 1;
+}
+:is(.is-lit, .stop-building:hover, .stop-building:focus-visible) .stop-pool {
+  opacity: 1;
+}
+:is(.is-lit, .stop-building:hover, .stop-building:focus-visible) .stop-lamp {
+  fill: #fff4d8;
+  filter: drop-shadow(0 0 6px rgb(var(--a-glow)));
+}
+.is-lit .stop-marker {
+  opacity: 1;
+  animation: stop-marker-bob 2.6s ease-in-out infinite;
+}
+.is-lit .stop-marker-core {
+  fill: rgb(var(--a-100));
+}
+@keyframes stop-marker-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stop-window {
+    fill-opacity: 0.9;
+  }
+  .stop-sign {
+    fill: rgb(var(--a-100));
+    opacity: 1;
+  }
+  .stop-pool,
+  .stop-marker {
+    opacity: 1;
+  }
+  .stop-lamp,
+  .stop-marker-core {
+    fill: rgb(var(--a-100));
+  }
+}
+
+/* ---------- achievement panel ---------- */
+.achievement-dialog::backdrop {
+  background: transparent;
+}
+.achievement-glass {
+  background:
+    radial-gradient(90% 60% at 10% 0%, rgb(var(--a-100)/0.12), transparent 60%),
+    linear-gradient(165deg, rgba(40, 34, 26, 0.92), rgba(14, 12, 10, 0.95) 55%, rgba(20, 17, 13, 0.95));
+  border: 1px solid rgb(var(--a-200)/0.3);
+  box-shadow:
+    inset 0 1px 0 rgb(var(--a-100)/0.35),
+    inset 0 0 40px rgb(var(--a-100)/0.04),
+    0 60px 120px -40px rgba(0, 0, 0, 0.95),
+    0 0 80px -30px rgb(var(--a-glow)/0.45);
 }
 
 /* ---------- view transitions (card screenshot → case study hero) ---------- */
