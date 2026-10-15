@@ -225,7 +225,7 @@ export function Projects() {
 
   return (
     <section id="projects" ref={root} aria-labelledby="projects-title" className="relative">
-      <div ref={pinArea} className="relative flex min-h-svh flex-col justify-center overflow-hidden py-24 lg:pb-6 lg:pt-20">
+      <div ref={pinArea} className="relative flex min-h-svh flex-col justify-center overflow-hidden pb-24 pt-28 lg:pb-6 lg:pt-24 short:pt-[88px]">
         <div aria-hidden className="pointer-events-none absolute -left-40 bottom-0 h-[460px] w-[460px] rounded-full bg-gold/10 blur-[140px]" />
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">

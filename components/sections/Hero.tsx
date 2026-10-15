@@ -179,7 +179,7 @@ export function Hero() {
   });
 
   return (
-    <section id="home" ref={root} aria-label="Introduction" className="relative h-svh min-h-[640px] overflow-hidden bg-ink">
+    <section id="home" ref={root} aria-label="Introduction" className="relative min-h-svh overflow-hidden bg-ink lg:h-svh lg:min-h-[640px]">
       {/* 3D workspace */}
       <div className="absolute inset-0">
         {!sceneReady && <SceneFallback />}
@@ -229,7 +229,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-4 pt-16 sm:px-6 lg:px-10">
+      <div className="relative z-10 mx-auto flex min-h-svh max-w-7xl flex-col justify-center-safe px-4 pb-16 pt-[104px] sm:px-6 lg:h-full lg:min-h-0 lg:px-10 lg:pb-8 lg:pt-24 cramped:pb-4 cramped:pt-[88px]">
         <div data-hero-copy className="max-w-xl">
           <div data-hero-fade className="flex items-center gap-4">
             {profile.photoBadge && <HeroPortraitBadge src={profile.photoBadge} />}
@@ -237,7 +237,7 @@ export function Hero() {
               {profile.title} · {profile.positioning}
             </p>
           </div>
-          <h1 className="mt-6 font-display text-[clamp(2.6rem,6.4vw,5rem)] font-semibold leading-[1.02] tracking-[-0.02em]">
+          <h1 className="mt-6 font-display text-[clamp(2.6rem,6.4vw,5rem)] short:mt-4 short:text-[clamp(2.6rem,min(6.4vw,9.5svh),5rem)] cramped:mt-3 cramped:text-[clamp(2.4rem,min(6.4vw,8.5svh),5rem)] font-semibold leading-[1.02] tracking-[-0.02em]">
             {["Turning", "Ideas Into"].map((line) => (
               <span key={line} className="block overflow-hidden pb-[0.06em]">
                 <span data-hero-line className="block">
@@ -251,10 +251,10 @@ export function Hero() {
               </span>
             </span>
           </h1>
-          <p data-hero-fade className="mt-6 max-w-md text-[15px] leading-relaxed text-muted sm:text-base">
+          <p data-hero-fade className="mt-6 max-w-md text-[15px] short:mt-4 cramped:mt-3 leading-relaxed text-muted sm:text-base">
             {profile.intro}
           </p>
-          <p data-hero-fade className="mt-4 flex flex-wrap gap-x-2 text-[13px] text-faint">
+          <p data-hero-fade className="mt-4 flex flex-wrap gap-x-2 text-[13px] text-faint cramped:mt-3">
             {stack.map((s, i) => (
               <span key={s} className={i === 0 ? "text-gold-bright" : ""}>
                 {s}
@@ -262,7 +262,7 @@ export function Hero() {
               </span>
             ))}
           </p>
-          <div data-hero-fade className="mt-8 flex flex-wrap items-center gap-3">
+          <div data-hero-fade className="mt-8 flex flex-wrap items-center gap-3 short:mt-6 cramped:mt-4">
             <a href="#projects" className="btn-gold">
               View My Work <ArrowRight className="h-4 w-4" aria-hidden />
             </a>
@@ -276,7 +276,7 @@ export function Hero() {
             )}
           </div>
 
-          <dl data-hero-fade className="mt-10 grid max-w-md grid-cols-3 border-t border-white/10 pt-6 [&>div+div]:border-l [&>div+div]:border-white/10 [&>div+div]:pl-4 sm:[&>div+div]:pl-6 [&>div]:pr-3">
+          <dl data-hero-fade className="mt-10 grid max-w-md grid-cols-3 border-t border-white/10 pt-6 short:mt-6 short:pt-4 cramped:mt-4 cramped:pt-3 [&>div+div]:border-l [&>div+div]:border-white/10 [&>div+div]:pl-4 sm:[&>div+div]:pl-6 [&>div]:pr-3">
             <div>
               <dt className="sr-only">Professional engineering since</dt>
               <dd className="font-display text-2xl text-text tabular-nums">

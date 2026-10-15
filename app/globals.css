@@ -56,6 +56,10 @@
   --faint: #6e6960;
 }
 
+/* Short desktop screens (e.g. 1280×720 laptops): the pinned, fixed-height hero tightens up to fit */
+@custom-variant short (@media (min-width: 1024px) and (max-height: 820px));
+@custom-variant cramped (@media (min-width: 1024px) and (max-height: 700px));
+
 @theme inline {
   --color-ink: var(--ink);
   --color-charcoal: var(--charcoal);
